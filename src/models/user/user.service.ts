@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { AccountEntity } from '../account/entities/account.entity';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -22,9 +26,11 @@ export class UserService {
       });
       await queryRunner.commitTransaction();
       return user;
-    } catch (err) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.log(err);
+      if (error.code === '23505') {
+        throw new BadRequestException('user with this username already exists');
+      }
       throw new InternalServerErrorException('transaction failed');
     } finally {
       await queryRunner.release();
