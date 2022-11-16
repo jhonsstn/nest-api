@@ -1,17 +1,33 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { AccountEntity } from '../account/entities/account.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
-  ) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   async create(createUserDto: CreateUserDto) {
-    return await this.userRepository.save(createUserDto);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const account = await queryRunner.manager.save(AccountEntity, {
+        balance: 100,
+      });
+      const user = await queryRunner.manager.save(UserEntity, {
+        ...createUserDto,
+        accountId: account.id,
+      });
+      await queryRunner.commitTransaction();
+      return user;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      console.log(err);
+      throw new InternalServerErrorException('transaction failed');
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
