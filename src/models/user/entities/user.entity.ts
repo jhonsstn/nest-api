@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { AccountEntity } from '../../account/entities/account.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -10,4 +17,11 @@ export class UserEntity {
 
   @Column()
   password: string;
+
+  @Column()
+  accountId: string;
+
+  @OneToOne(() => AccountEntity)
+  @JoinColumn({ name: 'accountId' })
+  account: AccountEntity;
 }
