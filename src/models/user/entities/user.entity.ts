@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   Column,
   Entity,
@@ -15,6 +16,7 @@ export class UserEntity {
   @Column()
   username: string;
 
+  @Exclude()
   @Column()
   password: string;
 
@@ -24,4 +26,8 @@ export class UserEntity {
   @OneToOne(() => AccountEntity)
   @JoinColumn({ name: 'accountId' })
   account: AccountEntity;
+
+  constructor(partial: Partial<UserEntity>) {
+    Object.assign(this, partial);
+  }
 }
