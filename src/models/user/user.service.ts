@@ -43,4 +43,10 @@ export class UserService {
       await queryRunner.release();
     }
   }
+
+  async findOne(username: string) {
+    return await this.dataSource.manager.findOne(UserEntity, {
+      where: { username },
+    });
+  }
 }
