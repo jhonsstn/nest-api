@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { HasherModule } from './common/hasher/hasher.module';
 import { UserModule } from './models/user/user.module';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { AuthModule } from './auth/auth.module';
       database: 'db',
       autoLoadEntities: true,
       synchronize: true, // Disable in production
-    }),
+    }), //TODO: move to config
     HasherModule,
     AuthModule,
   ],
