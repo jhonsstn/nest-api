@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { HasherService } from '../../common/hasher/hasher.service';
@@ -16,7 +17,7 @@ export class UserService {
     private readonly hasherService: HasherService,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const { username, password } = createUserDto;
     const queryRunner = this.dataSource.createQueryRunner();
     try {
@@ -44,9 +45,20 @@ export class UserService {
     }
   }
 
-  async findOne(username: string) {
+  async findOne(username: string): Promise<UserEntity> {
     return await this.dataSource.manager.findOne(UserEntity, {
       where: { username },
     });
+  }
+
+  async getBalance(userId: string, signedUser: UserEntity): Promise<number> {
+    if (userId !== signedUser.id) {
+      throw new UnauthorizedException('you can only get your own balance');
+    }
+    const user = await this.dataSource.manager.findOne(UserEntity, {
+      where: { id: userId },
+      relations: ['account'],
+    });
+    return +user.account.balance;
   }
 }
