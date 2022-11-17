@@ -4,24 +4,31 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { HasherService } from '../../common/hasher/hasher.service';
 import { AccountEntity } from '../account/entities/account.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly hasherService: HasherService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const { username, password } = createUserDto;
     const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
     try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      const hash = await this.hasherService.hashPassword(password);
       const account = await queryRunner.manager.save(AccountEntity, {
         balance: 100,
       });
       const user = await queryRunner.manager.save(UserEntity, {
-        ...createUserDto,
+        username,
+        password: hash,
         accountId: account.id,
       });
       await queryRunner.commitTransaction();
