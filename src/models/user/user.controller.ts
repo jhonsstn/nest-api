@@ -30,12 +30,11 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
-  @Get(':id/balance')
+  @Get('balance')
   async getBalance(
-    @Param('id') userId: string,
     @SignedUser() signedUser: UserEntity,
   ): Promise<AccountEntity> {
-    const account = await this.userService.getBalance(userId, signedUser);
+    const account = await this.userService.getBalance(signedUser);
     return new AccountEntity(account);
   }
 

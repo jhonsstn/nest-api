@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { HasherModule } from './common/hasher/hasher.module';
 import { UserModule } from './models/user/user.module';
+import { AccountModule } from './models/account/account.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserModule } from './models/user/user.module';
     }), //TODO: move to config
     HasherModule,
     AuthModule,
+    AccountModule,
   ],
   controllers: [AppController],
   providers: [AppService],

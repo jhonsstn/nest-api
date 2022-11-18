@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { HasherService } from '../../common/hasher/hasher.service';
+import { AccountService } from '../account/account.service';
 import { AccountEntity } from '../account/entities/account.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
@@ -15,6 +16,7 @@ import { TransferData } from './interfaces/transfer-data.interface';
 export class UserService {
   constructor(
     private readonly dataSource: DataSource,
+    private readonly accountService: AccountService,
     private readonly hasherService: HasherService,
   ) {}
 
@@ -51,18 +53,8 @@ export class UserService {
     });
   }
 
-  async getBalance(
-    userId: string,
-    signedUser: UserEntity,
-  ): Promise<AccountEntity> {
-    if (userId !== signedUser.id) {
-      throw new UnauthorizedException('you can only get your own balance');
-    }
-    const user = await this.dataSource.manager.findOne(UserEntity, {
-      where: { id: userId },
-      relations: ['account'],
-    });
-    return user.account;
+  async getBalance(signedUser: UserEntity): Promise<AccountEntity> {
+    return await this.accountService.getBalance(signedUser.id);
   }
 
   async transfer(
