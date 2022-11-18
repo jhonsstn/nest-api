@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { HasherService } from '../../common/hasher/hasher.service';

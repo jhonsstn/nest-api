@@ -1,7 +1,6 @@
 import { Exclude } from 'class-transformer';
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { ColumnNumericTransformer } from '../../../helpers/column-numeric-transformer.helper';
-import { UserEntity } from '../../user/entities/user.entity';
 
 @Entity('accounts')
 export class AccountEntity {
@@ -17,9 +16,6 @@ export class AccountEntity {
     transformer: new ColumnNumericTransformer(),
   })
   balance: number;
-
-  @OneToOne(() => UserEntity, (user) => user.id)
-  user: UserEntity;
 
   constructor(partial?: Partial<AccountEntity>) {
     Object.assign(this, partial);
