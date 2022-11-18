@@ -4,10 +4,10 @@ import { ColumnNumericTransformer } from '../../../helpers/column-numeric-transf
 
 @Entity('accounts')
 export class AccountEntity {
-  @Exclude()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Exclude()
   @Column({
     type: 'decimal',
     precision: 10,

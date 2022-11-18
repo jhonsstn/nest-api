@@ -1,6 +1,7 @@
-import { Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AccountEntity } from '../../account/entities/account.entity';
 
+@Entity('transactions')
 export class TransactionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -14,6 +15,10 @@ export class TransactionEntity {
   @Column()
   value: number;
 
-  @Column()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
+
+  constructor(partial?: Partial<TransactionEntity>) {
+    Object.assign(this, partial);
+  }
 }

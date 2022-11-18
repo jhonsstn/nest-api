@@ -10,10 +10,10 @@ import {
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { SignedUser } from '../../decorators/signed-user.decorator';
 import { AccountEntity } from '../account/entities/account.entity';
+import { TransactionEntity } from '../transaction/entities/transaction.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { TransferDto } from './dto/transfer.dto';
 import { UserEntity } from './entities/user.entity';
-import { TransferData } from './interfaces/transfer-data.interface';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -28,7 +28,6 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get('balance')
   async getBalance(
     @SignedUser() signedUser: UserEntity,
@@ -43,15 +42,12 @@ export class UserController {
   async transfer(
     @Body() transferDto: TransferDto,
     @SignedUser() signedUser: UserEntity,
-  ): Promise<TransferData> {
-    const transferData = await this.userService.transfer(
+  ): Promise<TransactionEntity> {
+    const transaction = await this.userService.transfer(
       transferDto.cashInId,
       signedUser.id,
       transferDto.amount,
     );
-    return {
-      cashOutUser: new UserEntity(transferData.cashOutUser),
-      cashInUser: new UserEntity(transferData.cashInUser),
-    };
+    return transaction;
   }
 }

@@ -3,5 +3,6 @@ import { TransactionService } from './transaction.service';
 
 @Module({
   providers: [TransactionService],
+  exports: [TransactionService],
 })
 export class TransactionModule {}

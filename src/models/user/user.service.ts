@@ -7,9 +7,10 @@ import { DataSource } from 'typeorm';
 import { HasherService } from '../../common/hasher/hasher.service';
 import { AccountService } from '../account/account.service';
 import { AccountEntity } from '../account/entities/account.entity';
+import { TransactionEntity } from '../transaction/entities/transaction.entity';
+import { TransactionService } from '../transaction/transaction.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
-import { TransferData } from './interfaces/transfer-data.interface';
 
 @Injectable()
 export class UserService {
@@ -17,6 +18,7 @@ export class UserService {
     private readonly dataSource: DataSource,
     private readonly accountService: AccountService,
     private readonly hasherService: HasherService,
+    private readonly transactionService: TransactionService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
@@ -60,7 +62,7 @@ export class UserService {
     cashInId: string,
     cashOutId: string,
     amount: number,
-  ): Promise<TransferData> {
+  ): Promise<TransactionEntity> {
     if (cashInId === cashOutId) {
       throw new BadRequestException('you can only transfer to another user');
     }
@@ -71,6 +73,9 @@ export class UserService {
       where: { id: cashOutId },
       relations: ['account'],
     });
+    if (!cashOutUser) {
+      throw new BadRequestException('user with this id does not exist');
+    }
     if (cashOutUser.account.balance < amount) {
       throw new BadRequestException('insufficient funds');
     }
@@ -80,13 +85,21 @@ export class UserService {
       where: { id: cashInId },
       relations: ['account'],
     });
+    if (!cashInUser) {
+      throw new BadRequestException('user with this id does not exist');
+    }
     cashInUser.account.balance += amount;
 
     try {
       await queryRunner.manager.save(cashOutUser);
       await queryRunner.manager.save(cashInUser);
       await queryRunner.commitTransaction();
-      return { cashOutUser, cashInUser };
+      const transaction = await this.transactionService.addTransaction(
+        cashOutUser.account,
+        cashInUser.account,
+        amount,
+      );
+      return transaction;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException('transaction failed');
