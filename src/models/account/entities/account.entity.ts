@@ -1,9 +1,11 @@
+import { Exclude } from 'class-transformer';
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ColumnNumericTransformer } from '../../../helpers/column-numeric-transformer.helper';
 import { UserEntity } from '../../user/entities/user.entity';
 
 @Entity('accounts')
 export class AccountEntity {
+  @Exclude()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -18,4 +20,8 @@ export class AccountEntity {
 
   @OneToOne(() => UserEntity, (user) => user.id)
   user: UserEntity;
+
+  constructor(partial?: Partial<AccountEntity>) {
+    Object.assign(this, partial);
+  }
 }

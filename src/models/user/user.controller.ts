@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { SignedUser } from '../../decorators/signed-user.decorator';
+import { AccountEntity } from '../account/entities/account.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { TransferDto } from './dto/transfer.dto';
 import { UserEntity } from './entities/user.entity';
@@ -28,13 +29,14 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id/balance')
   async getBalance(
     @Param('id') userId: string,
     @SignedUser() signedUser: UserEntity,
-  ): Promise<{ balance: number }> {
-    const balance = await this.userService.getBalance(userId, signedUser);
-    return { balance };
+  ): Promise<AccountEntity> {
+    const account = await this.userService.getBalance(userId, signedUser);
+    return new AccountEntity(account);
   }
 
   @UseGuards(JwtAuthGuard)

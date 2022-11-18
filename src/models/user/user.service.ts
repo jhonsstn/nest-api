@@ -51,7 +51,10 @@ export class UserService {
     });
   }
 
-  async getBalance(userId: string, signedUser: UserEntity): Promise<number> {
+  async getBalance(
+    userId: string,
+    signedUser: UserEntity,
+  ): Promise<AccountEntity> {
     if (userId !== signedUser.id) {
       throw new UnauthorizedException('you can only get your own balance');
     }
@@ -59,7 +62,7 @@ export class UserService {
       where: { id: userId },
       relations: ['account'],
     });
-    return user.account.balance;
+    return user.account;
   }
 
   async transfer(
