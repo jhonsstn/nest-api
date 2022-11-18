@@ -43,11 +43,10 @@ export class UserController {
     @Body() transferDto: TransferDto,
     @SignedUser() signedUser: UserEntity,
   ): Promise<TransactionEntity> {
-    const transaction = await this.userService.transfer(
-      transferDto.cashInId,
-      signedUser.id,
-      transferDto.amount,
-    );
+    const transaction = await this.userService.transfer({
+      ...transferDto,
+      debitedId: signedUser.id,
+    });
     return transaction;
   }
 }

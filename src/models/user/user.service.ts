@@ -10,6 +10,7 @@ import { AccountEntity } from '../account/entities/account.entity';
 import { TransactionEntity } from '../transaction/entities/transaction.entity';
 import { TransactionService } from '../transaction/transaction.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { TransferDto } from './dto/transfer.dto';
 import { UserEntity } from './entities/user.entity';
 
 @Injectable()
@@ -58,45 +59,39 @@ export class UserService {
     return await this.accountService.getBalance(signedUser.id);
   }
 
-  async transfer(
-    cashInId: string,
-    cashOutId: string,
-    amount: number,
-  ): Promise<TransactionEntity> {
-    if (cashInId === cashOutId) {
+  async transfer({
+    creditedId,
+    debitedId,
+    amount,
+  }: TransferDto & { debitedId: string }): Promise<TransactionEntity> {
+    if (creditedId === debitedId) {
       throw new BadRequestException('you can only transfer to another user');
     }
+    const debitedUser = await this.getDebitedUser(debitedId);
+    if (debitedUser.account.balance < amount) {
+      throw new BadRequestException('insufficient funds');
+    }
+
+    debitedUser.account.balance -= amount;
+
+    const creditedUser = await this.getCreditedUser(creditedId);
+    if (!creditedUser) {
+      throw new BadRequestException('user with this id does not exist');
+    }
+
+    creditedUser.account.balance += amount;
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    const cashOutUser = await queryRunner.manager.findOne(UserEntity, {
-      where: { id: cashOutId },
-      relations: ['account'],
-    });
-    if (!cashOutUser) {
-      throw new BadRequestException('user with this id does not exist');
-    }
-    if (cashOutUser.account.balance < amount) {
-      throw new BadRequestException('insufficient funds');
-    }
-    cashOutUser.account.balance -= amount;
-
-    const cashInUser = await queryRunner.manager.findOne(UserEntity, {
-      where: { id: cashInId },
-      relations: ['account'],
-    });
-    if (!cashInUser) {
-      throw new BadRequestException('user with this id does not exist');
-    }
-    cashInUser.account.balance += amount;
 
     try {
-      await queryRunner.manager.save(cashOutUser);
-      await queryRunner.manager.save(cashInUser);
+      await queryRunner.manager.save(debitedUser);
+      await queryRunner.manager.save(creditedUser);
       await queryRunner.commitTransaction();
       const transaction = await this.transactionService.addTransaction(
-        cashOutUser.account,
-        cashInUser.account,
+        debitedUser.account,
+        creditedUser.account,
         amount,
       );
       return transaction;
@@ -106,5 +101,29 @@ export class UserService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  private async getDebitedUser(debitedUserId: string): Promise<UserEntity> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    const debitedUser = await queryRunner.manager.findOne(UserEntity, {
+      where: { id: debitedUserId },
+      relations: ['account'],
+    });
+    if (!debitedUser) {
+      throw new BadRequestException('user with this id does not exist');
+    }
+    return debitedUser;
+  }
+
+  private async getCreditedUser(creditedUserId: string): Promise<UserEntity> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    const creditedUser = await queryRunner.manager.findOne(UserEntity, {
+      where: { id: creditedUserId },
+      relations: ['account'],
+    });
+    if (!creditedUserId) {
+      throw new BadRequestException('user with this id does not exist');
+    }
+    return creditedUser;
   }
 }
