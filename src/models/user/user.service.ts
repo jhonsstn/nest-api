@@ -9,6 +9,7 @@ import { HasherService } from '../../common/hasher/hasher.service';
 import { AccountEntity } from '../account/entities/account.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
+import { TransferData } from './interfaces/transfer-data.interface';
 
 @Injectable()
 export class UserService {
@@ -20,18 +21,17 @@ export class UserService {
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const { username, password } = createUserDto;
     const queryRunner = this.dataSource.createQueryRunner();
+
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      const hash = await this.hasherService.hashPassword(password);
-      const account = await queryRunner.manager.save(AccountEntity, {
-        balance: 100,
-      });
-      const user = await queryRunner.manager.save(UserEntity, {
+      const account = new AccountEntity();
+      const user = new UserEntity({
         username,
-        password: hash,
-        accountId: account.id,
+        password: await this.hasherService.hashPassword(password),
+        account,
       });
+      await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
       return user;
     } catch (error) {
@@ -59,6 +59,45 @@ export class UserService {
       where: { id: userId },
       relations: ['account'],
     });
-    return +user.account.balance;
+    return user.account.balance;
+  }
+
+  async transfer(
+    cashInId: string,
+    cashOutId: string,
+    amount: number,
+  ): Promise<TransferData> {
+    if (cashInId === cashOutId) {
+      throw new BadRequestException('you can only transfer to another user');
+    }
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    const cashOutUser = await queryRunner.manager.findOne(UserEntity, {
+      where: { id: cashOutId },
+      relations: ['account'],
+    });
+    if (cashOutUser.account.balance < amount) {
+      throw new BadRequestException('insufficient funds');
+    }
+    cashOutUser.account.balance -= amount;
+
+    const cashInUser = await queryRunner.manager.findOne(UserEntity, {
+      where: { id: cashInId },
+      relations: ['account'],
+    });
+    cashInUser.account.balance += amount;
+
+    try {
+      await queryRunner.manager.save(cashOutUser);
+      await queryRunner.manager.save(cashInUser);
+      await queryRunner.commitTransaction();
+      return { cashOutUser, cashInUser };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException('transaction failed');
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

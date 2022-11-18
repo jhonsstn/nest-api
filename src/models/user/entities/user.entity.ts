@@ -20,10 +20,7 @@ export class UserEntity {
   @Column()
   password: string;
 
-  @Column()
-  accountId: string;
-
-  @OneToOne(() => AccountEntity)
+  @OneToOne(() => AccountEntity, (account) => account.id, { cascade: true })
   @JoinColumn({ name: 'accountId' })
   account: AccountEntity;
 
