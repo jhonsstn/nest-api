@@ -45,9 +45,7 @@ export class TransactionService {
     if (operation === 'debit') {
       return this._getDebitTransactions(accountId, date);
     }
-    if (!operation) {
-      return this._getTransactionsByDate(accountId, date);
-    }
+    return this._getTransactionsByDate(accountId, date);
   }
 
   private async _getCreditTransactions(accountId: string, date: string) {
@@ -64,15 +62,14 @@ export class TransactionService {
         )
         .getMany();
       return transactions;
-    } else {
-      const transactions = await this._dataSource.manager.find(
-        TransactionEntity,
-        {
-          where: { creditedAccountId: accountId },
-        },
-      );
-      return transactions;
     }
+    const transactions = await this._dataSource.manager.find(
+      TransactionEntity,
+      {
+        where: { creditedAccountId: accountId },
+      },
+    );
+    return transactions;
   }
 
   private async _getDebitTransactions(accountId: string, date: string) {
@@ -89,15 +86,14 @@ export class TransactionService {
         )
         .getMany();
       return transactions;
-    } else {
-      const transactions = await this._dataSource.manager.find(
-        TransactionEntity,
-        {
-          where: { debitedAccountId: accountId },
-        },
-      );
-      return transactions;
     }
+    const transactions = await this._dataSource.manager.find(
+      TransactionEntity,
+      {
+        where: { debitedAccountId: accountId },
+      },
+    );
+    return transactions;
   }
 
   private async _getTransactionsByDate(accountId: string, date: string) {
