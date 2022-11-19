@@ -13,10 +13,13 @@ import { UserModule } from './models/user/user.module';
     ConfigModule.forRoot({
       validationSchema: joi.object({
         DB_HOST: joi.string().required(),
-        DB_PORT: joi.number().required().default(5432),
+        DB_PORT: joi.number().default(5432),
         DB_USERNAME: joi.string().required(),
         DB_PASSWORD: joi.string().required(),
         DB_NAME: joi.string().required(),
+        JWT_SECRET: joi.string().required(),
+        JWT_EXPIRATION_TIME: joi.string().required(),
+        BCRYPT_SALT: joi.number().required(),
       }),
     }),
     UserModule,
