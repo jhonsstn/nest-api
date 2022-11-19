@@ -6,7 +6,7 @@ const mockedConfigService = {
       case 'JWT_EXPIRATION_TIME':
         return '24h';
       case 'JWT_SECRET':
-        return 'secret';
+        return 'any_secret';
     }
   },
 };
