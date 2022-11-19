@@ -20,6 +20,7 @@ import { UserModule } from './models/user/user.module';
         JWT_SECRET: joi.string().required(),
         JWT_EXPIRATION_TIME: joi.string().required(),
         BCRYPT_SALT: joi.number().required(),
+        TYPEORM_SYNCHRONIZE: joi.boolean().default(false),
       }),
     }),
     UserModule,
@@ -31,8 +32,8 @@ import { UserModule } from './models/user/user.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       autoLoadEntities: true,
-      synchronize: true, // Disable in production
-    }), //TODO: move to config
+      synchronize: !!process.env.TYPEORM_SYNCHRONIZE,
+    }),
     HasherModule,
     AuthModule,
     AccountModule,
