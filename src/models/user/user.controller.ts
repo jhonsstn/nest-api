@@ -19,32 +19,34 @@ import { UserService } from './user.service';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly _userService: UserService) {}
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('signup')
-  async create(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
-    const createdUser = await this.userService.create(createUserDto);
+  public async create(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<UserEntity> {
+    const createdUser = await this._userService.create(createUserDto);
     return new UserEntity(createdUser);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('balance')
-  async getBalance(
+  public async getBalance(
     @SignedUser() signedUser: UserEntity,
   ): Promise<AccountEntity> {
-    const account = await this.userService.getBalance(signedUser);
+    const account = await this._userService.getBalance(signedUser);
     return new AccountEntity(account);
   }
 
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('transfer')
-  async transfer(
+  public async transfer(
     @Body() transferDto: TransferDto,
     @SignedUser() signedUser: UserEntity,
   ): Promise<TransactionEntity> {
-    const transaction = await this.userService.transfer({
+    const transaction = await this._userService.transfer({
       ...transferDto,
       debitedId: signedUser.id,
     });
@@ -54,22 +56,22 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('transactions')
-  async getTransactions(
+  public async getTransactions(
     @SignedUser() signedUser: UserEntity,
   ): Promise<TransactionEntity[]> {
-    const transactions = await this.userService.getTransactions(signedUser);
+    const transactions = await this._userService.getTransactions(signedUser);
     return transactions;
   }
 
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('transactions/filter')
-  async getFilteredTransactions(
+  public async getFilteredTransactions(
     @SignedUser() signedUser,
     @Query() query,
   ): Promise<TransactionEntity[]> {
     console.log(query);
-    const transactions = await this.userService.getFilteredTransactions(
+    const transactions = await this._userService.getFilteredTransactions(
       signedUser,
       query.operation,
       query.date,

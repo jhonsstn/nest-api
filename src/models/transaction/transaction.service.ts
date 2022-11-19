@@ -4,8 +4,9 @@ import { TransactionEntity } from './entities/transaction.entity';
 
 @Injectable()
 export class TransactionService {
-  constructor(private readonly dataSource: DataSource) {}
-  async addTransaction(
+  constructor(private readonly _dataSource: DataSource) {}
+
+  public async addTransaction(
     debitedAccountId: string,
     creditedAccountId: string,
     value: number,
@@ -16,39 +17,42 @@ export class TransactionService {
       value,
     });
 
-    const createdTransaction = await this.dataSource.manager.save(transaction);
+    const createdTransaction = await this._dataSource.manager.save(transaction);
     return createdTransaction;
   }
 
-  async getTransactions(accountId: string) {
-    const transactions = await this.dataSource.manager.find(TransactionEntity, {
-      where: [
-        { debitedAccountId: accountId },
-        { creditedAccountId: accountId },
-      ],
-    });
+  public async getTransactions(accountId: string) {
+    const transactions = await this._dataSource.manager.find(
+      TransactionEntity,
+      {
+        where: [
+          { debitedAccountId: accountId },
+          { creditedAccountId: accountId },
+        ],
+      },
+    );
     return transactions;
   }
 
-  async getFilteredTransactions(
+  public async getFilteredTransactions(
     accountId: string,
     operation: string,
     date: string,
   ) {
     if (operation === 'credit') {
-      return this.getCreditTransactions(accountId, date);
+      return this._getCreditTransactions(accountId, date);
     }
     if (operation === 'debit') {
-      return this.getDebitTransactions(accountId, date);
+      return this._getDebitTransactions(accountId, date);
     }
     if (!operation) {
-      return this.getTransactionsByDate(accountId, date);
+      return this._getTransactionsByDate(accountId, date);
     }
   }
 
-  private async getCreditTransactions(accountId: string, date: string) {
+  private async _getCreditTransactions(accountId: string, date: string) {
     if (date) {
-      const transactions = await this.dataSource
+      const transactions = await this._dataSource
         .getRepository(TransactionEntity)
         .createQueryBuilder('transactions')
         .where(
@@ -61,7 +65,7 @@ export class TransactionService {
         .getMany();
       return transactions;
     } else {
-      const transactions = await this.dataSource.manager.find(
+      const transactions = await this._dataSource.manager.find(
         TransactionEntity,
         {
           where: { creditedAccountId: accountId },
@@ -71,9 +75,9 @@ export class TransactionService {
     }
   }
 
-  private async getDebitTransactions(accountId: string, date: string) {
+  private async _getDebitTransactions(accountId: string, date: string) {
     if (date) {
-      const transactions = await this.dataSource
+      const transactions = await this._dataSource
         .getRepository(TransactionEntity)
         .createQueryBuilder('transactions')
         .where(
@@ -86,7 +90,7 @@ export class TransactionService {
         .getMany();
       return transactions;
     } else {
-      const transactions = await this.dataSource.manager.find(
+      const transactions = await this._dataSource.manager.find(
         TransactionEntity,
         {
           where: { debitedAccountId: accountId },
@@ -96,8 +100,8 @@ export class TransactionService {
     }
   }
 
-  private async getTransactionsByDate(accountId: string, date: string) {
-    const transactions = await this.dataSource
+  private async _getTransactionsByDate(accountId: string, date: string) {
+    const transactions = await this._dataSource
       .getRepository(TransactionEntity)
       .createQueryBuilder('transactions')
       .where(

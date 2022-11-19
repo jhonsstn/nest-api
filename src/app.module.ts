@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { HasherModule } from './common/hasher/hasher.module';
-import { UserModule } from './models/user/user.module';
 import { AccountModule } from './models/account/account.module';
 import { TransactionModule } from './models/transaction/transaction.module';
+import { UserModule } from './models/user/user.module';
 
 @Module({
   imports: [
@@ -26,7 +24,5 @@ import { TransactionModule } from './models/transaction/transaction.module';
     AccountModule,
     TransactionModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

@@ -5,10 +5,10 @@ import { AccountEntity } from './entities/account.entity';
 
 @Injectable()
 export class AccountService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(private readonly _dataSource: DataSource) {}
 
-  async getBalance(userId: string): Promise<AccountEntity> {
-    const user = await this.dataSource.manager.findOne(UserEntity, {
+  public async getBalance(userId: string): Promise<AccountEntity> {
+    const user = await this._dataSource.manager.findOne(UserEntity, {
       where: { id: userId },
       relations: ['account'],
     });

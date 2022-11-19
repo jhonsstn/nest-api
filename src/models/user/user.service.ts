@@ -16,15 +16,15 @@ import { UserEntity } from './entities/user.entity';
 @Injectable()
 export class UserService {
   constructor(
-    private readonly dataSource: DataSource,
-    private readonly accountService: AccountService,
-    private readonly hasherService: HasherService,
-    private readonly transactionService: TransactionService,
+    private readonly _dataSource: DataSource,
+    private readonly _accountService: AccountService,
+    private readonly _hasherService: HasherService,
+    private readonly _transactionService: TransactionService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+  public async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const { username, password } = createUserDto;
-    const queryRunner = this.dataSource.createQueryRunner();
+    const queryRunner = this._dataSource.createQueryRunner();
 
     try {
       await queryRunner.connect();
@@ -32,7 +32,7 @@ export class UserService {
       const account = new AccountEntity();
       const user = new UserEntity({
         username,
-        password: await this.hasherService.hashPassword(password),
+        password: await this._hasherService.hashPassword(password),
         account,
       });
       await queryRunner.manager.save(user);
@@ -49,18 +49,18 @@ export class UserService {
     }
   }
 
-  async findOne(username: string): Promise<UserEntity> {
-    return await this.dataSource.manager.findOne(UserEntity, {
+  public async findOne(username: string): Promise<UserEntity> {
+    return await this._dataSource.manager.findOne(UserEntity, {
       where: { username },
       relations: ['account'],
     });
   }
 
-  async getBalance(signedUser: UserEntity): Promise<AccountEntity> {
-    return await this.accountService.getBalance(signedUser.id);
+  public async getBalance(signedUser: UserEntity): Promise<AccountEntity> {
+    return await this._accountService.getBalance(signedUser.id);
   }
 
-  async transfer({
+  public async transfer({
     creditedId,
     debitedId,
     amount,
@@ -68,21 +68,21 @@ export class UserService {
     if (creditedId === debitedId) {
       throw new BadRequestException('you can only transfer to another user');
     }
-    const debitedUser = await this.getDebitedUser(debitedId);
+    const debitedUser = await this._getDebitedUser(debitedId);
     if (debitedUser.account.balance < amount) {
       throw new BadRequestException('insufficient funds');
     }
 
     debitedUser.account.balance -= amount;
 
-    const creditedUser = await this.getCreditedUser(creditedId);
+    const creditedUser = await this._getCreditedUser(creditedId);
     if (!creditedUser) {
       throw new BadRequestException('user with this id does not exist');
     }
 
     creditedUser.account.balance += amount;
 
-    const queryRunner = this.dataSource.createQueryRunner();
+    const queryRunner = this._dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
@@ -90,7 +90,7 @@ export class UserService {
       await queryRunner.manager.save(debitedUser);
       await queryRunner.manager.save(creditedUser);
       await queryRunner.commitTransaction();
-      const transaction = await this.transactionService.addTransaction(
+      const transaction = await this._transactionService.addTransaction(
         debitedUser.account.id,
         creditedUser.account.id,
         amount,
@@ -104,8 +104,8 @@ export class UserService {
     }
   }
 
-  private async getDebitedUser(debitedUserId: string): Promise<UserEntity> {
-    const queryRunner = this.dataSource.createQueryRunner();
+  private async _getDebitedUser(debitedUserId: string): Promise<UserEntity> {
+    const queryRunner = this._dataSource.createQueryRunner();
     const debitedUser = await queryRunner.manager.findOne(UserEntity, {
       where: { id: debitedUserId },
       relations: ['account'],
@@ -116,8 +116,8 @@ export class UserService {
     return debitedUser;
   }
 
-  private async getCreditedUser(creditedUserId: string): Promise<UserEntity> {
-    const queryRunner = this.dataSource.createQueryRunner();
+  private async _getCreditedUser(creditedUserId: string): Promise<UserEntity> {
+    const queryRunner = this._dataSource.createQueryRunner();
     const creditedUser = await queryRunner.manager.findOne(UserEntity, {
       where: { id: creditedUserId },
       relations: ['account'],
@@ -128,19 +128,19 @@ export class UserService {
     return creditedUser;
   }
 
-  async getTransactions(signedUser: UserEntity) {
+  public async getTransactions(signedUser: UserEntity) {
     const account = (await this.findOne(signedUser.username)).account;
-    return await this.transactionService.getTransactions(account.id);
+    return await this._transactionService.getTransactions(account.id);
   }
 
-  async getFilteredTransactions(
+  public async getFilteredTransactions(
     signedUser: UserEntity,
     operation: string,
     date: string,
   ): Promise<TransactionEntity[]> {
     const account = (await this.findOne(signedUser.username)).account;
     console.log(operation);
-    return await this.transactionService.getFilteredTransactions(
+    return await this._transactionService.getFilteredTransactions(
       account.id,
       operation,
       date,
