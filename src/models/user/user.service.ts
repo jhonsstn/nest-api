@@ -132,4 +132,18 @@ export class UserService {
     const account = (await this.findOne(signedUser.username)).account;
     return await this.transactionService.getTransactions(account.id);
   }
+
+  async getFilteredTransactions(
+    signedUser: UserEntity,
+    operation: string,
+    date: string,
+  ): Promise<TransactionEntity[]> {
+    const account = (await this.findOne(signedUser.username)).account;
+    console.log(operation);
+    return await this.transactionService.getFilteredTransactions(
+      account.id,
+      operation,
+      date,
+    );
+  }
 }

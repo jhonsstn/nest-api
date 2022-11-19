@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -57,6 +58,22 @@ export class UserController {
     @SignedUser() signedUser: UserEntity,
   ): Promise<TransactionEntity[]> {
     const transactions = await this.userService.getTransactions(signedUser);
+    return transactions;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('transactions/filter')
+  async getFilteredTransactions(
+    @SignedUser() signedUser,
+    @Query() query,
+  ): Promise<TransactionEntity[]> {
+    console.log(query);
+    const transactions = await this.userService.getFilteredTransactions(
+      signedUser,
+      query.operation,
+      query.date,
+    );
     return transactions;
   }
 }

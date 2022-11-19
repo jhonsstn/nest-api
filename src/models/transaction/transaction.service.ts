@@ -29,4 +29,85 @@ export class TransactionService {
     });
     return transactions;
   }
+
+  async getFilteredTransactions(
+    accountId: string,
+    operation: string,
+    date: string,
+  ) {
+    if (operation === 'credit') {
+      return this.getCreditTransactions(accountId, date);
+    }
+    if (operation === 'debit') {
+      return this.getDebitTransactions(accountId, date);
+    }
+    if (!operation) {
+      return this.getTransactionsByDate(accountId, date);
+    }
+  }
+
+  private async getCreditTransactions(accountId: string, date: string) {
+    if (date) {
+      const transactions = await this.dataSource
+        .getRepository(TransactionEntity)
+        .createQueryBuilder('transactions')
+        .where(
+          'DATE(transactions."createdAt") = :date AND transactions."creditedAccountId" = :accountId',
+          {
+            date,
+            accountId,
+          },
+        )
+        .getMany();
+      return transactions;
+    } else {
+      const transactions = await this.dataSource.manager.find(
+        TransactionEntity,
+        {
+          where: { creditedAccountId: accountId },
+        },
+      );
+      return transactions;
+    }
+  }
+
+  private async getDebitTransactions(accountId: string, date: string) {
+    if (date) {
+      const transactions = await this.dataSource
+        .getRepository(TransactionEntity)
+        .createQueryBuilder('transactions')
+        .where(
+          'DATE(transactions."createdAt") = :date AND transactions."debitedAccountId" = :accountId',
+          {
+            date,
+            accountId,
+          },
+        )
+        .getMany();
+      return transactions;
+    } else {
+      const transactions = await this.dataSource.manager.find(
+        TransactionEntity,
+        {
+          where: { debitedAccountId: accountId },
+        },
+      );
+      return transactions;
+    }
+  }
+
+  private async getTransactionsByDate(accountId: string, date: string) {
+    const transactions = await this.dataSource
+      .getRepository(TransactionEntity)
+      .createQueryBuilder('transactions')
+      .where(
+        '(DATE(transactions."createdAt") = :date AND transactions."debitedAccountId" = :accountId) OR (DATE(transactions."createdAt") = :date AND transactions."creditedAccountId" = :accountId)',
+        {
+          date,
+          accountId,
+        },
+      )
+      .getMany();
+    return transactions;
+  }
 }
