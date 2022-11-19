@@ -90,8 +90,8 @@ export class UserService {
       await queryRunner.manager.save(creditedUser);
       await queryRunner.commitTransaction();
       const transaction = await this.transactionService.addTransaction(
-        debitedUser.account,
-        creditedUser.account,
+        debitedUser.account.id,
+        creditedUser.account.id,
         amount,
       );
       return transaction;

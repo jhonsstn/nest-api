@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AccountEntity } from '../../account/entities/account.entity';
 
@@ -6,9 +7,17 @@ export class TransactionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column()
+  debitedAccountId: string;
+
+  @Column()
+  creditedAccountId: string;
+
+  @Exclude()
   @ManyToOne(() => AccountEntity, (account) => account.id)
   debitedAccount: AccountEntity;
 
+  @Exclude()
   @ManyToOne(() => AccountEntity, (account) => account.id)
   creditedAccount: AccountEntity;
 
