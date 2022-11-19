@@ -13,6 +13,7 @@ import { SignedUser } from '../../decorators/signed-user.decorator';
 import { AccountEntity } from '../account/entities/account.entity';
 import { TransactionEntity } from '../transaction/entities/transaction.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { TransactionsFilterDto } from './dto/transactions-filter.dto';
 import { TransferDto } from './dto/transfer.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
@@ -67,15 +68,15 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('transactions/filter')
   public async getFilteredTransactions(
-    @SignedUser() signedUser,
-    @Query() query,
+    @SignedUser() signedUser: UserEntity,
+    @Query() transactionsFilterDto: TransactionsFilterDto,
   ): Promise<TransactionEntity[]> {
-    console.log(query);
-    const transactions = await this._userService.getFilteredTransactions(
+    const { operation, date } = transactionsFilterDto;
+    const transactions = await this._userService.getFilteredTransactions({
       signedUser,
-      query.operation,
-      query.date,
-    );
+      operation,
+      date,
+    });
     return transactions;
   }
 }

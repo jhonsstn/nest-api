@@ -10,6 +10,7 @@ import { AccountEntity } from '../account/entities/account.entity';
 import { TransactionEntity } from '../transaction/entities/transaction.entity';
 import { TransactionService } from '../transaction/transaction.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { TransactionsFilterDto } from './dto/transactions-filter.dto';
 import { TransferDto } from './dto/transfer.dto';
 import { UserEntity } from './entities/user.entity';
 
@@ -133,13 +134,14 @@ export class UserService {
     return await this._transactionService.getTransactions(account.id);
   }
 
-  public async getFilteredTransactions(
-    signedUser: UserEntity,
-    operation: string,
-    date: string,
-  ): Promise<TransactionEntity[]> {
+  public async getFilteredTransactions({
+    signedUser,
+    operation,
+    date,
+  }: TransactionsFilterDto & { signedUser: UserEntity }): Promise<
+    TransactionEntity[]
+  > {
     const account = (await this.findOne(signedUser.username)).account;
-    console.log(operation);
     return await this._transactionService.getFilteredTransactions(
       account.id,
       operation,
