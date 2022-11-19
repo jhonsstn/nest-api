@@ -19,4 +19,14 @@ export class TransactionService {
     const createdTransaction = await this.dataSource.manager.save(transaction);
     return createdTransaction;
   }
+
+  async getTransactions(accountId: string) {
+    const transactions = await this.dataSource.manager.find(TransactionEntity, {
+      where: [
+        { debitedAccountId: accountId },
+        { creditedAccountId: accountId },
+      ],
+    });
+    return transactions;
+  }
 }

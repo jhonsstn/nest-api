@@ -52,6 +52,7 @@ export class UserService {
   async findOne(username: string): Promise<UserEntity> {
     return await this.dataSource.manager.findOne(UserEntity, {
       where: { username },
+      relations: ['account'],
     });
   }
 
@@ -125,5 +126,10 @@ export class UserService {
       throw new BadRequestException('user with this id does not exist');
     }
     return creditedUser;
+  }
+
+  async getTransactions(signedUser: UserEntity) {
+    const account = (await this.findOne(signedUser.username)).account;
+    return await this.transactionService.getTransactions(account.id);
   }
 }

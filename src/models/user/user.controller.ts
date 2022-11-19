@@ -49,4 +49,14 @@ export class UserController {
     });
     return transaction;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('transactions')
+  async getTransactions(
+    @SignedUser() signedUser: UserEntity,
+  ): Promise<TransactionEntity[]> {
+    const transactions = await this.userService.getTransactions(signedUser);
+    return transactions;
+  }
 }
