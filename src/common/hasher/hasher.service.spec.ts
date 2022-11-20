@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import mockedConfigService from '../../utils/mocks/config.service';
+import mockedConfigService from '../../utils/mocks/config.service.mock';
 import { HasherModule } from './hasher.module';
 import { HasherService } from './hasher.service';
 

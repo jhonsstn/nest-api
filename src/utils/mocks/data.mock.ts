@@ -7,6 +7,7 @@ const mockedData = {
       balance: 100,
     },
   },
+  loginToken: { access_token: 'token' },
 };
 
 export default mockedData;
