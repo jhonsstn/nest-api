@@ -22,6 +22,7 @@ const mockedDataSource = {
     release: jest.fn(),
     manager: {
       save: mockedDataSourceModules.mockedSaveUser,
+      findOne: mockedDataSourceModules.mockedFindOneUser,
     },
   }),
 };

@@ -77,17 +77,14 @@ export class UserService {
     debitedUser.account.balance -= amount;
 
     const creditedUser = await this._getCreditedUser(creditedId);
-    if (!creditedUser) {
-      throw new BadRequestException('user with this id does not exist');
-    }
 
     creditedUser.account.balance += amount;
 
     const queryRunner = this._dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
 
     try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
       await queryRunner.manager.save(debitedUser);
       await queryRunner.manager.save(creditedUser);
       await queryRunner.commitTransaction();
@@ -123,7 +120,7 @@ export class UserService {
       where: { id: creditedUserId },
       relations: ['account'],
     });
-    if (!creditedUserId) {
+    if (!creditedUser) {
       throw new BadRequestException('user with this id does not exist');
     }
     return creditedUser;

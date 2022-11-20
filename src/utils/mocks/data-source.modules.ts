@@ -19,3 +19,7 @@ export const mockedSaveTransaction = jest
 export const mockedFindTransactions = jest
   .fn()
   .mockResolvedValue([mockedData.transaction]);
+
+export const mockedRollbackTransaction = jest.fn();
+
+export const mockedRelease = jest.fn();

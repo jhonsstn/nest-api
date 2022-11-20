@@ -1,5 +1,7 @@
 import { AccountEntity } from '../../models/account/entities/account.entity';
 import { TransactionEntity } from '../../models/transaction/entities/transaction.entity';
+import { TransactionsFilterDto } from '../../models/user/dto/transactions-filter.dto';
+import { TransferDto } from '../../models/user/dto/transfer.dto';
 import { UserEntity } from '../../models/user/entities/user.entity';
 
 interface MockedData {
@@ -8,12 +10,14 @@ interface MockedData {
   userWithAccount: UserEntity;
   transaction: Omit<TransactionEntity, 'debitedAccount' | 'creditedAccount'>;
   account: AccountEntity;
+  transferData: TransferDto & { debitedId: string };
+  transactionFilterData: TransactionsFilterDto & { signedUser: UserEntity };
 }
 
 const mockedData: MockedData = {
   validatedUser: {
     id: 'any_id',
-    username: 'any_user',
+    username: 'any_username',
     account: {
       id: 'any_id',
       balance: 100,
@@ -22,8 +26,8 @@ const mockedData: MockedData = {
   loginToken: { access_token: 'token' },
   userWithAccount: {
     id: 'any_id',
-    username: 'any_user',
-    password: 'any_password',
+    username: 'any_username',
+    password: 'hashed_password',
     account: {
       id: 'any_id',
       balance: 100,
@@ -40,6 +44,24 @@ const mockedData: MockedData = {
   account: {
     id: 'any_id',
     balance: 100,
+  },
+  transferData: {
+    creditedId: 'any_id',
+    debitedId: 'any_id',
+    amount: 100,
+  },
+  transactionFilterData: {
+    signedUser: {
+      id: 'any_id',
+      username: 'any_username',
+      password: 'hashed_password',
+      account: {
+        id: 'any_id',
+        balance: 100,
+      },
+    },
+    operation: 'any_operation',
+    date: '1-1-1',
   },
 };
 

@@ -1,7 +1,7 @@
 import mockedData from './data.mock';
 
 const mockedUserService = {
-  findOne: () => mockedData.validatedUser,
+  findOne: jest.fn().mockResolvedValue(mockedData.userWithAccount),
 };
 
 export default mockedUserService;
