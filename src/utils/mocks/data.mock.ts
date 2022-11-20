@@ -1,3 +1,4 @@
+import { AccountEntity } from '../../models/account/entities/account.entity';
 import { TransactionEntity } from '../../models/transaction/entities/transaction.entity';
 import { UserEntity } from '../../models/user/entities/user.entity';
 
@@ -6,6 +7,7 @@ interface MockedData {
   loginToken: { access_token: string };
   userWithAccount: UserEntity;
   transaction: Omit<TransactionEntity, 'debitedAccount' | 'creditedAccount'>;
+  account: AccountEntity;
 }
 
 const mockedData: MockedData = {
@@ -33,6 +35,11 @@ const mockedData: MockedData = {
     creditedAccountId: 'any_id',
     value: 100,
     createdAt: new Date('1-1-1'),
+  },
+
+  account: {
+    id: 'any_id',
+    balance: 100,
   },
 };
 

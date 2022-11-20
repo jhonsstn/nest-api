@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
-import mockedData from '../../../dist/utils/mocks/data.mock';
 import mockedDataSource from '../../utils/mocks/data-source.mock';
+import mockedData from '../../utils/mocks/data.mock';
 import { UserEntity } from '../user/entities/user.entity';
 import { AccountService } from './account.service';
 

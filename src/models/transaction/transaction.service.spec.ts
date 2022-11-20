@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import mockedDataSource from '../../utils/mocks/data-source.mock';
+import * as mockedDataSourceModules from '../../utils/mocks/data-source.modules';
 import mockedData from '../../utils/mocks/data.mock';
 import { TransactionEntity } from './entities/transaction.entity';
 import { TransactionService } from './transaction.service';
@@ -43,7 +44,10 @@ describe('TransactionService', () => {
   });
 
   it('should call dataSource find method with the correct params', async () => {
-    const findSpy = jest.spyOn(mockedDataSource.manager, 'find');
+    const findSpy = jest.spyOn(
+      mockedDataSourceModules,
+      'mockedFindTransactions',
+    );
     await service.getTransactions('any_id');
     expect(findSpy).toHaveBeenCalledWith(TransactionEntity, {
       where: [{ debitedAccountId: 'any_id' }, { creditedAccountId: 'any_id' }],
@@ -118,7 +122,10 @@ describe('TransactionService', () => {
   });
 
   it('should call dataSource getMany method when getFilteredTransactions is called with any date', async () => {
-    const getRepositorySpy = jest.spyOn(mockedDataSource, 'getRepository');
+    const getRepositorySpy = jest.spyOn(
+      mockedDataSourceModules,
+      'mockedGetManyTransactions',
+    );
     await service.getFilteredTransactions('any_id', null, 'any_date');
     expect(getRepositorySpy).toHaveBeenCalled();
   });

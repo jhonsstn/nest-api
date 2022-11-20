@@ -36,9 +36,9 @@ export class UserService {
         password: await this._hasherService.hashPassword(password),
         account,
       });
-      await queryRunner.manager.save(user);
+      const createdUser = await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
-      return user;
+      return createdUser;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error.code === '23505') {
