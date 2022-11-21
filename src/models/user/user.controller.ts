@@ -8,6 +8,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { SignedUser } from '../../decorators/signed-user.decorator';
 import { AccountEntity } from '../account/entities/account.entity';
@@ -18,6 +19,7 @@ import { TransferDto } from './dto/transfer.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
 
+@ApiTags('user')
 @Controller('users')
 export class UserController {
   constructor(private readonly _userService: UserService) {}
@@ -31,6 +33,11 @@ export class UserController {
     return new UserEntity(createdUser);
   }
 
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token (jwt)',
+  })
   @UseGuards(JwtAuthGuard)
   @Get('balance')
   public async getBalance(
@@ -40,6 +47,11 @@ export class UserController {
     return new AccountEntity(account);
   }
 
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token (jwt)',
+  })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('transfer')
@@ -54,6 +66,11 @@ export class UserController {
     return transaction;
   }
 
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token (jwt)',
+  })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('transactions')
@@ -64,6 +81,11 @@ export class UserController {
     return transactions;
   }
 
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer token (jwt)',
+  })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('transactions/filter')

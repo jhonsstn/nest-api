@@ -24,13 +24,13 @@ describe('AuthController', () => {
   });
 
   it('should return a token if user is valid', async () => {
-    const token = await controller.login({ user: mockedData.validatedUser });
+    const token = await controller.login(mockedData.validatedUser);
     expect(token).toEqual(mockedData.loginToken);
   });
 
   it('should be called with correct params', async () => {
     const loginSpy = jest.spyOn(mockedAuthService, 'login');
-    await controller.login({ user: mockedData.validatedUser });
+    await controller.login(mockedData.validatedUser);
     expect(loginSpy).toHaveBeenCalledWith(mockedData.validatedUser);
   });
 });

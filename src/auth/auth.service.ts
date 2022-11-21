@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { HasherService } from '../common/hasher/hasher.service';
 import { UserEntity } from '../models/user/entities/user.entity';
 import { UserService } from '../models/user/user.service';
+import { AuthorizedUserDto } from './dto/authorized-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +25,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: Omit<UserEntity, 'password'>) {
+  async login(user: AuthorizedUserDto) {
     const payload = { username: user.username, id: user.id };
     return {
       access_token: this.jwtService.sign(payload),
