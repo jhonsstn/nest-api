@@ -40,6 +40,7 @@ export class UserService {
       await queryRunner.commitTransaction();
       return createdUser;
     } catch (error) {
+      console.log(error);
       await queryRunner.rollbackTransaction();
       if (error.code === '23505') {
         throw new BadRequestException('user with this username already exists');
@@ -95,6 +96,7 @@ export class UserService {
       );
       return transaction;
     } catch (error) {
+      console.log(error);
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException('transaction failed');
     } finally {
