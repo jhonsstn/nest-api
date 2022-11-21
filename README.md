@@ -1,3 +1,16 @@
+## Requirements
+
+
+- [Node v18.12.1](https://nodejs.org/en/)
+- [Docker version 20.10.20](https://www.docker.com/products/docker-desktop/)
+
+
+## Install locally
+
+```bash
+$ npm install
+```
+
 ## Running the app on docker
 
 ```bash
