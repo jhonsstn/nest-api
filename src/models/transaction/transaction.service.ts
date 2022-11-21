@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { TransactionEntity } from './entities/transaction.entity';
 
@@ -39,6 +39,11 @@ export class TransactionService {
     operation: string,
     date: string,
   ) {
+    if (operation && !(operation === 'credit' || operation === 'debit')) {
+      throw new BadRequestException(
+        'invalid operation (valid operations are credit and debit)',
+      );
+    }
     if (operation === 'credit') {
       return this._getCreditTransactions(accountId, date);
     }
@@ -97,17 +102,25 @@ export class TransactionService {
   }
 
   private async _getTransactionsByDate(accountId: string, date: string) {
-    const transactions = await this._dataSource
-      .getRepository(TransactionEntity)
-      .createQueryBuilder('transactions')
-      .where(
-        '(DATE(transactions."createdAt") = :date AND transactions."debitedAccountId" = :accountId) OR (DATE(transactions."createdAt") = :date AND transactions."creditedAccountId" = :accountId)',
-        {
-          date,
-          accountId,
-        },
-      )
-      .getMany();
-    return transactions;
+    try {
+      const transactions = await this._dataSource
+        .getRepository(TransactionEntity)
+        .createQueryBuilder('transactions')
+        .where(
+          '(DATE(transactions."createdAt") = :date AND transactions."debitedAccountId" = :accountId) OR (DATE(transactions."createdAt") = :date AND transactions."creditedAccountId" = :accountId)',
+          {
+            date,
+            accountId,
+          },
+        )
+        .getMany();
+      return transactions;
+    } catch (error) {
+      if (error.code === '22007') {
+        throw new BadRequestException(
+          'invalid date format (correct format is YYYY-MM-DD)',
+        );
+      }
+    }
   }
 }
