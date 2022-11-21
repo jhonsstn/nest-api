@@ -11,7 +11,7 @@ export class HasherService {
   }
 
   async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, this._salt);
+    return await bcrypt.hash(password, +this._salt);
   }
 
   async comparePasswords(password: string, hash: string): Promise<boolean> {

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as joi from 'joi';
 import { AuthModule } from './auth/auth.module';
 import { HasherModule } from './common/hasher/hasher.module';
+import dbEnvironment from './configs/db';
 import { AccountModule } from './models/account/account.module';
 import { TransactionModule } from './models/transaction/transaction.module';
 import { UserModule } from './models/user/user.module';
@@ -11,6 +12,7 @@ import { UserModule } from './models/user/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      isGlobal: true,
       validationSchema: joi.object({
         DB_HOST: joi.string().required(),
         DB_PORT: joi.number().default(5432),
@@ -24,15 +26,13 @@ import { UserModule } from './models/user/user.module';
       }),
     }),
     UserModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: +process.env.DB_PORT,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      autoLoadEntities: true,
-      synchronize: !!process.env.TYPEORM_SYNCHRONIZE,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: () => {
+        const env = process.env.NODE_ENV || 'development';
+        return dbEnvironment[env];
+      },
     }),
     HasherModule,
     AuthModule,

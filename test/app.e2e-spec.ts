@@ -1,10 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
 
-describe('AppController (e2e)', () => {
+describe('UserModule (e2e)', () => {
   let app: INestApplication;
+  console.log(process.env.NODE_ENV);
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -15,10 +16,26 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/users/signup (POST)', () => {
     return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+      .post('/users/signup')
+      .send({
+        username: 'John Doe',
+        password: 'Password',
+      })
+      .expect(201)
+      .then((response) => {
+        expect(response.body).toEqual({
+          id: expect.any(String),
+          username: 'John Doe',
+          account: {
+            id: expect.any(String),
+          },
+        });
+      });
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 });

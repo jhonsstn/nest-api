@@ -11,6 +11,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  console.log(process.env.NODE_ENV);
   await app.listen(3000); //TODO: move to config
 }
 bootstrap();
