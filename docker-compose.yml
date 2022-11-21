@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3'
 
 services:
 
@@ -23,3 +23,22 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_DB: ${DB_NAME}
+
+  app:
+    build: .
+    image: ng
+    container_name: app
+    depends_on:
+      - db
+    ports:
+      - ${APP_PORT}:3000
+    environment:
+      DB_HOST: db
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_TIME: ${JWT_EXPIRATION_TIME}
+      BCRYPT_SALT: ${BCRYPT_SALT}
+      TYPEORM_SYNCHRONIZE: false

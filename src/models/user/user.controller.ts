@@ -8,7 +8,13 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiHeader,
+  ApiResponse,
+  ApiTags,
+  OmitType,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { SignedUser } from '../../decorators/signed-user.decorator';
 import { AccountEntity } from '../account/entities/account.entity';
@@ -37,6 +43,7 @@ export class UserController {
   @ApiHeader({
     name: 'Authorization',
     description: 'Bearer token (jwt)',
+    required: true,
   })
   @UseGuards(JwtAuthGuard)
   @Get('balance')
@@ -51,6 +58,7 @@ export class UserController {
   @ApiHeader({
     name: 'Authorization',
     description: 'Bearer token (jwt)',
+    required: true,
   })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
@@ -70,6 +78,12 @@ export class UserController {
   @ApiHeader({
     name: 'Authorization',
     description: 'Bearer token (jwt)',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    type: OmitType(TransactionEntity, ['debitedAccount', 'creditedAccount']),
+    isArray: true,
   })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
@@ -85,6 +99,12 @@ export class UserController {
   @ApiHeader({
     name: 'Authorization',
     description: 'Bearer token (jwt)',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    type: OmitType(TransactionEntity, ['debitedAccount', 'creditedAccount']),
+    isArray: true,
   })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)

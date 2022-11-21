@@ -22,7 +22,6 @@ import { UserModule } from './models/user/user.module';
         JWT_SECRET: joi.string().required(),
         JWT_EXPIRATION_TIME: joi.string().required(),
         BCRYPT_SALT: joi.number().required(),
-        TYPEORM_SYNCHRONIZE: joi.boolean().default(false),
       }),
     }),
     UserModule,

@@ -12,7 +12,6 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
   const options = new DocumentBuilder()
     .setTitle('NG.Cash Test API')
     .setDescription('The NG.Cash Test API description')
