@@ -4,6 +4,12 @@
 - [Node v18.12.1](https://nodejs.org/en/)
 - [Docker version 20.10.20](https://www.docker.com/products/docker-desktop/)
 
+## Clone Repository
+
+```bash
+$ git clone git@github.com:jhonsstn/nest-api.git
+$ cd nest-api
+```
 
 ## Install locally
 
